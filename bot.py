@@ -1,41 +1,57 @@
-from lyricsgenius import Genius
+# from lyricsgenius import Genius
 import random
-import requests
+# import requests
 import json
 
-where_to_go = open("/Users/artemsemidetnov/PycharmProjects/genius/names_of_songs", "r")
+songs_path = "names_of_songs"
+songs_file = open(songs_path, "r")
+number_of_songs = len(songs_file.readlines())
 
-n = random.randint(0, 215)
-sngs = where_to_go.readlines()
-print(sngs[n])
-def oper(w):
-    u = w.split("/")
-    u1 = u[2]
-    le = len(u1)
-    gg = u1[:le-1]
-    return gg
 
-id = oper(sngs[n])
+currentsong_path = ""
 
-gonogo = open("/Users/artemsemidetnov/PycharmProjects/genius/fornow.txt", "w")
-gonogo.write(genius.lyrics(id))
-gonogo = open("/Users/artemsemidetnov/PycharmProjects/genius/fornow.txt", "r")
-lyroc = gonogo.readlines()
+# this is a description of lines that are "good" to use
+def admissible_line(w : str) -> bool: 
+    if w[0] == '[' or w[0] == ' ' or w == "\n" or w[0:19] == "You might also like":
+        return False
+    return True
 
-ans = ""
 
-ind = 1
-while ind:
-    m = random.randint(2, len(lyroc)-2)
-    if lyroc[m][0]!= '[':
-        ind  = 0
-        ans = lyroc[m]
+def parse_id(w : str):
+    split_hyphen = w.split("/")[2]
+    split_hyphen = split_hyphen[:len(split_hyphen)-1]
+    return split_hyphen
+
+def fetch_line() : 
+    # take an id of a random song
+    song_to_send = random.randint(0, number_of_songs)
+    id_of_song = parse_id(songs_file[song_to_send])
+
+    # fetch the random song and write it into currentsong.txt
+    currentsong = open(currentsong_path, "w")
+    # currentsong.write(genius.lyrics(id_of_song))
+
+    # prepare choose a random line
+    currentsong.close()
+    currentsong = open(currentsong_path, "r")
+    number_of_lines = len(currentsong.readlines())
+    ans = ""
+
+    # choose a line and make sure that it belongs to the song lyrics and not some info
+    while True :
+        line_num = random.randint(2, number_of_lines - 2)
+        ans = currentsong[line_num]
+        if admissible_line(ans):
+            return ans
+
+
+
+
 def send_message(msg, mass):
 
     for x in mass:
         compose = ''
         requests.get(compose)
-
 
 def do_staff(msg):
     uRLs = open("/Users/artemsemidetnov/PycharmProjects/genius/urls.txt", "r")
@@ -43,6 +59,7 @@ def do_staff(msg):
     mass1 = uRLs.readlines()
     for x in mass1:
         if x[len(x)-1:] == '\n':
+            print("ZHOPA")
             print("ZHOPA")
             mass.append(x[0:len(x)-1])
     print(mass)
@@ -67,4 +84,13 @@ def do_staff(msg):
     for x in mass:
         uRLs.write(x+"\n")
 
-do_staff(ans)
+def main() : 
+    # checks:
+    print(admissible_line("You might also like[Припев]"))
+    print(admissible_line("\n"))
+    print(admissible_line("[Куплет 2]"))
+    print(parse_id("/songs/116335\n"))
+    w = "You might also like[Припев]"
+    
+
+main()
